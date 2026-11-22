@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Learn Regex - Interactive Trainer</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#0f172a;color:#e2e8f0;margin:0;padding:20px}
+  .wrap{max-width:900px;margin:0 auto}
+  h1{font-size:28px;margin:0 0 6px} h1 span{color:#38bdf8}
+  .sub{color:#94a3b8;margin-bottom:20px}
+  .card{background:#1e293b;border:1px solid #334155;border-radius:16px;padding:20px;margin-bottom:16px}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  .badge{background:#0ea5e9;color:white;padding:6px 12px;border-radius:999px;font-size:13px;font-weight:700}
+  .progress{height:8px;background:#334155;border-radius:999px;overflow:hidden;margin-top:12px}
+  .progress div{height:100%;background:#38bdf8;width:10%;transition:.3s}
+  h2{margin:0 0 8px;font-size:20px}
+  p{line-height:1.6;color:#cbd5e1}
+  code{background:#0f172a;padding:2px 6px;border-radius:6px;color:#fbbf24}
+  pre{background:#0f172a;border:1px solid #334155;border-radius:12px;padding:14px;overflow:auto;white-space:pre-wrap;line-height:1.6}
+  .sample{color:#e2e8f0;font-size:15px}
+  mark{background:#facc15;color:#111;padding:1px 3px;border-radius:4px}
+  label{font-weight:700;display:block;margin:14px 0 6px}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  input[type=text]{flex:1;min-width:260px;background:#0f172a;border:2px solid #334155;color:white;padding:12px 14px;border-radius:10px;font-family:ui-monospace,monospace;font-size:15px;outline:none}
+  input[type=text]:focus{border-color:#38bdf8}
+  button{border:0;padding:12px 18px;border-radius:10px;font-weight:700;cursor:pointer;font-size:14px}
+  .primary{background:#38bdf8;color:#0f172a} .ghost{background:#334155;color:white} .success{background:#22c55e;color:white}
+  .hint-box{display:none;background:#fef3c7;color:#92400e;border-radius:12px;padding:14px;margin-top:14px;line-height:1.6}
+  .hint-box b{color:#78350f}
+  .result{margin-top:14px;padding:14px;border-radius:12px;display:none;line-height:1.6}
+  .result.ok{background:#14532d;border:1px solid #22c55e}
+  .result.bad{background:#7f1d1d;border:1px solid #ef4444}
+  .result pre{margin:10px 0 0;background:rgba(0,0,0,.3)}
+  .small{font-size:13px;color:#94a3b8}
+  .cheat{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:12px}
+  .cheat div{background:#0f172a;border:1px solid #334155;padding:10px;border-radius:10px;font-size:13px}
+  .cheat b{color:#38bdf8}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Learn <span>RegEx</span> 🧩</h1>
+  <p class="sub">Type a JavaScript expression using <code>text</code>. Example: <code>text.match(/\d+/g)</code> or <code>/\d+/.test(text)</code></p>
+
+  <div class="card">
+    <div class="top">
+      <span class="badge" id="counter">Task 1 / 10</span>
+      <span id="score">✅ Solved: 0</span>
+    </div>
+    <div class="progress"><div id="bar"></div></div>
+    <h2 id="title" style="margin-top:16px"></h2>
+    <p id="explain"></p>
+    <p><b>Your goal:</b> <span id="goal"></span></p>
+  </div>
+
+  <div class="card">
+    <b>📄 Sample Text <span class="small">(variable name is <code>text</code>)</span></b>
+    <pre class="sample" id="sampleText"></pre>
+    <b>🔍 Live Highlight <span class="small">(from your current regex)</span></b>
+    <pre class="sample" id="highlighted"></pre>
+  </div>
+
+  <div class="card">
+    <label for="jsInput">✍️ Your JS statement:</label>
+    <div class="row">
+      <input id="jsInput" type="text" placeholder="e.g. text.match(/\d+/g)" autocomplete="off" spellcheck="false">
+      <button class="primary" onclick="check()">▶ Run & Check</button>
+      <button class="ghost" onclick="showHint()">💡 Hint</button>
+    </div>
+    <div class="hint-box" id="hintBox"></div>
+    <div class="result" id="result"></div>
+    <div class="row" style="margin-top:16px">
+      <button class="ghost" onclick="prevTask()">← Previous</button>
+      <button class="ghost" onclick="nextTask()">Next Task →</button>
+      <button class="ghost" onclick="resetTask()">↺ Reset</button>
+      <button class="success" id="nextBtn" onclick="nextTask()" style="display:none">Next Task →</button>
+    </div>
+    <p class="small" style="margin-top:12px">Tip: You can enter just a regex like <code>/\d+/g</code> — it will be tested as <code>text.match(/.../)</code>. Use <code>g</code> flag to get all matches.</p>
+  </div>
+
+  <div class="card">
+    <b>📚 Quick Cheat Sheet</b>
+    <div class="cheat">
+      <div><b>\d</b> — digit [0-9]<br><b>\w</b> — word char [A-Za-z0-9_]<br><b>\s</b> — whitespace</div>
+      <div><b>.</b> — any char<br><b>^</b> — start <b>$</b> — end<br><b>[]</b> — character set</div>
+      <div><b>+</b> — 1 or more<br><b>*</b> — 0 or more<br><b>?</b> — 0 or 1<br><b>{2,4}</b> — range</div>
+      <div><b>()</b> — group / capture<br><b>|</b> — OR<br><b>\b</b> — word boundary<br><b>i</b> — ignore case flag</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const tasks = [
+  {
+    title: "1. Find all digits",
+    explain: "Numbers are everywhere. <code>\\d</code> matches a single digit 0-9. To get a whole number like <code>42</code> you need <code>\\d+</code> meaning 'one or more digits'. The <code>g</code> flag means 'global' - find ALL matches, not just the first.",
+    goal: "Return all numbers in the text.",
+    text: "I bought 3 apples for 12 dollars, and 7 bananas for 5 dollars in 2024.",
+    expected: ["3","12","7","5","2024"],
+    hint: "Construction to use: <code>\\d+</code> with the <code>g</code> flag.<br>Try: <code>text.match(/\\d+/g)</code><br>Why? <code>\\d</code> = digit, <code>+</code> = one or more, <code>g</code> = all.",
+    solution: "text.match(/\\d+/g)"
+  },
+  {
+    title: "2. Find words starting with capital letter",
+    explain: "Character classes <code>[A-Z]</code> match one uppercase letter. <code>[A-Za-z]+</code> matches a whole word. Combine: <code>[A-Z][a-z]+</code> means capital + lowercase letters.",
+    goal: "Return words that start with a capital letter.",
+    text: "Alice and bob went to Paris. john stayed in London with Mary.",
+    expected: ["Alice","Paris","London","Mary"],
+    hint: "Construction: <code>[A-Z]</code> + <code>[a-z]+</code><br>Try: <code>text.match(/[A-Z][a-z]+/g)</code>",
+    solution: "text.match(/[A-Z][a-z]+/g)"
+  },
+  {
+    title: "3. Find all 4-letter words",
+    explain: "<code>\\b</code> is a word boundary - the edge of a word. <code>\\w</code> is a word character. <code>{4}</code> means exactly 4 times.",
+    goal: "Return all words with exactly 4 letters.",
+    text: "This is a test with some long words like code and love in it.",
+    expected: ["This","test","with","some","long","like","code","love"],
+    hint: "Construction: <code>\\b\\w{4}\\b</code><br>Try: <code>text.match(/\\b\\w{4}\\b/g)</code>",
+    solution: "text.match(/\\b\\w{4}\\b/g)"
+  },
+  {
+    title: "4. Find emails",
+    explain: "Emails have a pattern: <code>something@something.something</code>. <code>\\w+</code> for name, <code>@</code> literal, <code>\\.</code> for a literal dot (dot alone means 'any char', so escape it).",
+    goal: "Return all email addresses.",
+    text: "Contact us at hello@gmail.com or support@company.io. My fake is not-an-email@ but real is admin@test.co.uk",
+    expected: ["hello@gmail.com","support@company.io","admin@test.co.uk"],
+    hint: "Construction: <code>\\w+@[\\w.]+\\.\\w+</code> or <code>[\\w.-]+@[\\w.-]+\\.\\w+</code><br>Try: <code>text.match(/[\\w.-]+@[\\w.-]+\\.\\w+/g)</code>",
+    solution: "text.match(/[\\w.-]+@[\\w.-]+\\.\\w+/g)"
+  },
+  {
+    title: "5. Check if text starts with Hello",
+    explain: "<code>^</code> anchors to the START of the string. <code>.test()</code> returns true/false instead of matches. This is perfect for validation.",
+    goal: "Return true if the text starts with 'Hello'.",
+    text: "Hello, welcome to regex world!",
+    expected: true,
+    hint: "Construction: <code>^Hello</code> with <code>.test()</code><br>Try: <code>/^Hello/.test(text)</code>",
+    solution: "/^Hello/.test(text)"
+  },
+  {
+    title: "6. Find words ending with 'ing'",
+    explain: "<code>$</code> is NOT needed here. We want <code>ing</code> at the end of a WORD, so use <code>\\b</code> after it. <code>\\w+ing\\b</code> = word chars + ing + word end.",
+    goal: "Return all words ending in 'ing'.",
+    text: "I am running and swimming while singing and dancing.",
+    expected: ["running","swimming","singing","dancing"],
+    hint: "Construction: <code>\\w+ing\\b</code><br>Try: <code>text.match(/\\w+ing\\b/g)</code>",
+    solution: "text.match(/\\w+ing\\b/g)"
+  },
+  {
+    title: "7. Find phone-like numbers OR dates",
+    explain: "Alternation <code>|</code> means OR. Groups <code>()</code> let you group alternatives. Example: <code>\\d{3}-\\d{4}</code> matches 555-1234.",
+    goal: "Return phone numbers like 555-1234.",
+    text: "Call 555-1234 or 555-9876. My code is 12345.",
+    expected: ["555-1234","555-9876"],
+    hint: "Construction: <code>\\d{3}-\\d{4}</code><br>Try: <code>text.match(/\\d{3}-\\d{4}/g)</code><br><code>{3}</code> = exactly 3 digits.",
+    solution: "text.match(/\\d{3}-\\d{4}/g)"
+  },
+  {
+    title: "8. Extract words between quotes",
+    explain: "Capture groups <code>()</code> save part of the match. <code>\"([^\"]+)\"</code> means: quote, then capture one or more NOT-quote chars, then quote. <code>[^\"]</code> = negated set.",
+    goal: "Return the words inside double quotes (without quotes). Use a capture group.",
+    text: 'He said "hello" and she said "goodbye" to him.',
+    expected: ["hello","goodbye"],
+    hint: "Construction: <code>\"([^\"]+)\"</code> + <code>matchAll</code><br>Try: <code>[...text.matchAll(/\"([^\"]+)\"/g)].map(m=>m[1])</code><br>Simpler alternative also accepted: <code>text.match(/\"[^\"]+\"/g)</code> (includes quotes)",
+    solution: "[...text.matchAll(/\"([^\"]+)\"/g)].map(m=>m[1])"
+  },
+  {
+    title: "9. Validate: only letters and spaces",
+    explain: "To validate a WHOLE string, anchor both sides: <code>^...$</code>. <code>^[A-Za-z ]+$</code> means from start to end, only letters/spaces.",
+    goal: "Return true if text contains ONLY letters and spaces.",
+    text: "Hello World",
+    expected: true,
+    hint: "Construction: <code>^[A-Za-z ]+$</code><br>Try: <code>/^[A-Za-z ]+$/.test(text)</code>",
+    solution: "/^[A-Za-z ]+$/.test(text)"
+  },
+  {
+    title: "10. Replace all spaces with dashes",
+    explain: "<code>.replace()</code> replaces matches. <code>\\s+</code> = one or more whitespace. With <code>g</code> it replaces ALL, not just first. This is how slugs / URLs are made!",
+    goal: "Return text with all spaces replaced by '-'.",
+    text: "hello   world   this is regex",
+    expected: "hello-world-this-is-regex",
+    hint: "Construction: <code>\\s+</code> with <code>.replace()</code><br>Try: <code>text.replace(/\\s+/g, '-')</code>",
+    solution: "text.replace(/\\s+/g, '-')"
+  }
+];
+
+let current = 0, solvedCount = 0, solved = new Set();
+const $ = id => document.getElementById(id);
+
+function render(){
+  const t = tasks[current];
+  $('counter').textContent = `Task ${current+1} / ${tasks.length}`;
+  $('bar').style.width = ((current+1)/tasks.length*100)+'%';
+  $('title').textContent = t.title;
+  $('explain').innerHTML = t.explain;
+  $('goal').textContent = t.goal;
+  $('sampleText').textContent = t.text;
+  $('hintBox').style.display='none';
+  $('result').style.display='none';
+  $('nextBtn').style.display='none';
+  $('jsInput').value='';
+  $('jsInput').placeholder = `e.g. ${t.solution}`;
+  $('score').textContent = `✅ Solved: ${solvedCount}`;
+  updateHighlight();
+}
+function showHint(){
+  $('hintBox').innerHTML = `<b>💡 Hint:</b> ${tasks[current].hint}<br><br><button onclick="useSolution()" style="background:#92400e;color:white;padding:8px 12px">Show solution in input</button>`;
+  $('hintBox').style.display='block';
+}
+function useSolution(){ $('jsInput').value = tasks[current].solution; $('jsInput').focus(); }
+function getRegexFromInput(code, text){
+  // extract /.../flags from code for highlighting
+  const m = code.match(/\/((?:\\.|[^\/])+)\/([gimsuy]*)/);
+  if(!m) return null;
+  try{ return new RegExp(m[1], m[2].includes('g')?m[2]:m[2]+'g'); }catch(e){ return null; }
+}
+function updateHighlight(){
+  const t = tasks[current];
+  const code = $('jsInput').value.trim();
+  const re = getRegexFromInput(code, t.text);
+  if(!re){ $('highlighted').textContent = t.text; return; }
+  try{ $('highlighted').innerHTML = t.text.replace(re, '<mark>$&</mark>'); }catch(e){ $('highlighted').textContent=t.text; }
+}
+function normalize(v){ return JSON.stringify(v); }
+function check(){
+  const t = tasks[current];
+  const code = $('jsInput').value.trim();
+  const resEl = $('result');
+  if(!code){ resEl.style.display='block'; resEl.className='result bad'; resEl.innerHTML='⚠️ Type something first! Try the Hint button.'; return; }
+  let value, error=null;
+  try{
+    const text = t.text;
+    if(code.startsWith('/') || code.startsWith('[') && code.includes('/')){
+      // allow just regex literal
+      if(/^\/.*\/[gimsuy]*$/.test(code)){ value = eval(`text.match(${code})`); }
+      else value = eval(code);
+    } else {
+      value = eval(code);
+    }
+  }catch(e){ error=e.message; }
+  if(error){
+    resEl.style.display='block'; resEl.className='result bad';
+    resEl.innerHTML=`❌ Error: <code>${error}</code><br>Check your syntax. Remember variable is <code>text</code>.`;
+    return;
+  }
+  // Special case for task 8: allow with quotes
+  let isCorrect = normalize(value)===normalize(t.expected);
+  if(current===7 && Array.isArray(value) && value.length===2 && value[0].includes('"')) isCorrect=true;
+  if(Array.isArray(value) && Array.isArray(t.expected)){
+    // order-insensitive compare for some tasks
+    isCorrect = normalize([...value].sort())===normalize([...t.expected].sort());
+  }
+  resEl.style.display='block';
+  if(isCorrect){
+    resEl.className='result ok';
+    resEl.innerHTML=`🎉 <b>Correct!</b> Your result: <pre>${JSON.stringify(value,null,2)}</pre>Expected: <pre>${JSON.stringify(t.expected,null,2)}</pre>`;
+    if(!solved.has(current)){ solved.add(current); solvedCount++; $('score').textContent=`✅ Solved: ${solvedCount}`; }
+    $('nextBtn').style.display='inline-block';
+    if(current===tasks.length-1) resEl.innerHTML+=`<br><b>🏆 You finished all tasks! Refresh to practice again.</b>`;
+  } else {
+    resEl.className='result bad';
+    resEl.innerHTML=`❌ Not quite. Your result: <pre>${JSON.stringify(value,null,2)}</pre>Expected: <pre>${JSON.stringify(t.expected,null,2)}</pre>Try Hint for the construction.`;
+  }
+}
+function nextTask(){ current=(current+1)%tasks.length; render(); }
+function prevTask(){ current=(current-1+tasks.length)%tasks.length; render(); }
+function resetTask(){ render(); }
+$('jsInput').addEventListener('input', updateHighlight);
+$('jsInput').addEventListener('keydown', e=>{ if(e.key==='Enter') check(); });
+render();
+</script>
+</body>
+</html>
